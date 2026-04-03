@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智能图片搜索引擎 - ImageSearch</title>
+<title>智能图片搜索引擎 - 多模态搜索</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -149,6 +149,108 @@ body {
   padding: 1.5rem;
 }
 
+/* Search Mode Selector */
+.search-mode-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-sec);
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.mode-btn:hover {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.mode-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.mode-icon {
+  font-size: 1.25rem;
+}
+
+/* Image Upload */
+.image-upload-area {
+  border: 3px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-sec);
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.image-upload-area.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.image-upload-area:hover, .image-upload-area.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.image-upload-area.uploaded {
+  border-style: solid;
+  border-color: var(--success);
+  background: #d1fae5;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  color: var(--text-muted);
+}
+
+.upload-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: var(--radius);
+  display: none;
+}
+
+.upload-preview.active {
+  display: block;
+}
+
+.upload-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 /* Search Bar */
 .search-bar {
   display: flex;
@@ -178,6 +280,11 @@ body {
 
 .search-input::placeholder {
   color: var(--text-muted);
+}
+
+.search-input.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Buttons */
@@ -239,17 +346,9 @@ body {
   color: #fff;
 }
 
-.btn-success:hover:not(:disabled) {
-  background: #059669;
-}
-
 .btn-danger {
   background: var(--danger);
   color: #fff;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: #dc2626;
 }
 
 /* Form Elements */
@@ -294,189 +393,40 @@ body {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.form-row {
+/* Slider */
+.slider-container {
   display: flex;
-  gap: 0.75rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
 }
 
-.form-row .form-group {
+.slider-container input[type="range"] {
   flex: 1;
-  min-width: 150px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  -webkit-appearance: none;
 }
 
-/* Filter Sections */
-.filter-section {
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  transition: var(--transition);
-  background: var(--bg-sec);
-}
-
-.filter-section:hover {
-  border-color: var(--primary-light);
-  background: #fff;
-}
-
-.filter-section h4 {
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--border);
-  font-weight: 600;
-}
-
-/* Toggle Switch */
-.switch-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.switch {
-  position: relative;
-  width: 48px;
-  height: 26px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #cbd5e1;
-  border-radius: 26px;
-  transition: var(--transition);
-}
-
-.slider::before {
-  content: "";
-  position: absolute;
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background: #fff;
+.slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  transition: var(--transition);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-input:checked + .slider {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-}
-
-input:checked + .slider::before {
-  transform: translateX(22px);
-}
-
-/* Tags */
-.tag-inputs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.tag-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-.tag-chip .remove {
+  background: var(--primary);
   cursor: pointer;
-  color: var(--text-muted);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+.slider-value {
   font-weight: 600;
-  padding: 0 0.25rem;
-}
-
-.tag-chip .remove:hover {
-  color: var(--danger);
-}
-
-.tag-chip-blue {
-  background: var(--primary-light);
   color: var(--primary);
-}
-
-.tag-chip-green {
-  background: #d1fae5;
-  color: var(--success);
-}
-
-/* Collapsible */
-.collapsible {
-  cursor: pointer;
-  user-select: none;
-  padding: 1rem;
-  background: linear-gradient(to right, var(--primary-light), transparent);
-  border-radius: var(--radius-sm);
-  margin-bottom: 1rem;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.collapsible:hover {
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  color: #fff;
-}
-
-.collapse-icon {
-  transition: transform 0.3s;
-  display: inline-block;
-}
-
-.collapsible.collapsed .collapse-icon {
-  transform: rotate(-90deg);
-}
-
-.collapsible.collapsed + * {
-  display: none;
+  min-width: 3rem;
+  text-align: right;
 }
 
 /* Results */
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.result-stats {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.result-stats strong {
-  color: var(--primary);
-  font-weight: 700;
-}
-
 .result-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -497,19 +447,6 @@ input:checked + .slider::before {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
   border-color: var(--primary-light);
-}
-
-.result-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.7));
-  opacity: 0;
-  transition: var(--transition);
-}
-
-.result-card:hover::after {
-  opacity: 1;
 }
 
 .result-img {
@@ -542,38 +479,6 @@ input:checked + .slider::before {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-}
-
-.result-desc {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.result-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-bottom: 0.75rem;
-}
-
-.result-tag {
-  background: var(--bg-sec);
-  color: var(--text-secondary);
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
 }
 
 .result-meta {
@@ -586,135 +491,6 @@ input:checked + .slider::before {
   border-top: 1px solid var(--border);
 }
 
-.result-score {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--warning);
-  font-weight: 600;
-}
-
-.highlight {
-  background: linear-gradient(to bottom, transparent 60%, #fef08a 60%);
-  color: inherit;
-  padding: 0 0.125rem;
-  border-radius: 0.125rem;
-}
-
-/* Pagination */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.pagination button {
-  padding: 0.625rem 1rem;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  cursor: pointer;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: var(--transition);
-  min-width: 40px;
-}
-
-.pagination button:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
-}
-
-.pagination button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.page-info {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-  padding: 0 1rem;
-}
-
-/* JSON Panel */
-.json-panel {
-  background: #1e1e2e;
-  color: #cdd6f4;
-  padding: 1.5rem;
-  border-radius: var(--radius);
-  font-family: 'Fira Code', 'Consolas', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.json-key { color: #cba6f7; }
-.json-str { color: #a6e3a1; }
-.json-num { color: #fab387; }
-.json-bool { color: #89b4fa; }
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 1.5rem;
-  background: var(--bg-sec);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  padding: 0 0.5rem;
-}
-
-.tab {
-  padding: 0.875rem 1.5rem;
-  cursor: pointer;
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: var(--transition);
-  font-weight: 500;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-}
-
-.tab:hover {
-  color: var(--primary);
-  background: rgba(99, 102, 241, 0.05);
-}
-
-.tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: #fff;
-  font-weight: 600;
-}
-
-/* Loading Animation */
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-dark {
-  border-color: rgba(99, 102, 241, 0.2);
-  border-top-color: var(--primary);
-}
-
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -725,16 +501,6 @@ input:checked + .slider::before {
 .empty-state .icon {
   font-size: 5rem;
   margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-  font-size: 1.25rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-  font-size: 0.9375rem;
 }
 
 /* Toast */
@@ -779,37 +545,7 @@ input:checked + .slider::before {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* Status Dot */
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 0.5rem;
-}
-
-.status-ok {
-  background: var(--success);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-}
-
-.status-error {
-  background: var(--danger);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-}
-
-.status-warn {
-  background: var(--warning);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* Action Buttons Row */
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 0.75rem;
@@ -817,214 +553,57 @@ input:checked + .slider::before {
   flex-wrap: wrap;
 }
 
-.action-buttons .btn {
-  font-size: 0.9375rem;
-  padding: 0.75rem 1.25rem;
-}
-
-/* Quick Stats */
-.quick-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, var(--bg-card), var(--bg-sec));
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  text-align: center;
-  transition: var(--transition);
-}
-
-.stat-card:hover {
-  border-color: var(--primary-light);
-  transform: translateY(-2px);
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary);
-  line-height: 1;
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-  .header h1 {
-    font-size: 1.75rem;
+  .search-mode-selector {
+    flex-direction: column;
   }
-
-  .container {
-    margin-top: -1rem;
-    padding: 0 1rem;
-  }
-
+  
   .params-grid {
     grid-template-columns: 1fr;
   }
-
+  
   .result-grid {
     grid-template-columns: 1fr;
   }
-
-  .search-bar {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .toast-container {
-    right: 1rem;
-    left: 1rem;
-  }
-
-  .toast {
-    min-width: auto;
-  }
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  animation: fadeIn 0.2s ease;
-}
-
-.modal-overlay:hover {
-  background: rgba(0, 0, 0, 0.85);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.modal-content {
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-content img {
-  max-width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.modal-close {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border: none;
-  font-size: 2rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: var(--transition);
+/* Search Mode Info */
+.mode-info {
+  background: linear-gradient(135deg, var(--bg-sec), var(--primary-light));
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: rotate(90deg);
-}
-
-.modal-info {
-  background: rgba(30, 27, 75, 0.95);
-  color: #fff;
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  margin-top: 1rem;
-  max-width: 800px;
-  backdrop-filter: blur(10px);
-}
-
-.modal-info h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.modal-info p {
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.modal-meta {
-  display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+}
+
+.mode-info-icon {
+  font-size: 2rem;
+}
+
+.mode-info-content h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.mode-info-content p {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 1rem;
+  color: var(--text-secondary);
 }
 
-.modal-meta span {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.modal-modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Print Styles */
-@media print {
-  .header,
-  .action-buttons,
-  .search-bar,
-  .filter-section,
-  .pagination,
-  .toast-container {
-    display: none;
-  }
-
-  body {
-    background: #fff;
-  }
-
-  .card {
-    box-shadow: none;
-    border: 1px solid #ddd;
-  }
+/* Hidden helper */
+.hidden {
+  display: none !important;
 }
 </style>
 </head>
@@ -1033,148 +612,104 @@ input:checked + .slider::before {
 <div class="header">
   <div class="header-content">
     <h1>🖼️ 智能图片搜索引擎</h1>
-    <p>基于 Elasticsearch · 支持智能分词 / 同义词扩展 / 实时高亮</p>
+    <p>支持文本搜索 · 图像搜索 · 多模态混合搜索</p>
     <div class="header-badges">
-      <span class="badge">🚀 高性能搜索</span>
-      <span class="badge">🔍 智能纠错</span>
-      <span class="badge">📊 实时统计</span>
+      <span class="badge">🔍 智能分词</span>
+      <span class="badge">🖼️ 图像搜索</span>
+      <span class="badge">🔀 多模态混合</span>
     </div>
   </div>
 </div>
 
 <div class="container">
 
-<!-- 快速统计 -->
-<div class="quick-stats">
-  <div class="stat-card">
-    <div class="stat-value" id="totalImages">-</div>
-    <div class="stat-label">总图片数</div>
+<!-- 搜索模式选择 -->
+<div class="card">
+  <div class="card-header">
+    <h3>🎯 选择搜索模式</h3>
   </div>
-  <div class="stat-card">
-    <div class="stat-value" id="totalTags">-</div>
-    <div class="stat-label">标签数</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-value" id="avgScore">-</div>
-    <div class="stat-label">平均评分</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-value" id="lastUpdate">-</div>
-    <div class="stat-label">最后更新</div>
+  <div class="card-body">
+    <div class="search-mode-selector">
+      <button class="mode-btn active" onclick="setSearchMode('text')">
+        <span class="mode-icon">📝</span>
+        <span>文本搜索</span>
+      </button>
+      <button class="mode-btn" onclick="setSearchMode('image')">
+        <span class="mode-icon">🖼️</span>
+        <span>图像搜索</span>
+      </button>
+      <button class="mode-btn" onclick="setSearchMode('hybrid')">
+        <span class="mode-icon">🔀</span>
+        <span>混合搜索</span>
+      </button>
+    </div>
+
+    <!-- 模式说明 -->
+    <div id="modeInfoText" class="mode-info">
+      <div class="mode-info-icon">📝</div>
+      <div class="mode-info-content">
+        <h4>文本搜索模式</h4>
+        <p>使用关键词搜索图片，支持智能分词、同义词扩展和拼写纠错</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- 搜索参数卡片 -->
+<!-- 搜索区域 -->
 <div class="card">
   <div class="card-header">
     <h3>🔍 搜索参数</h3>
-    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-      <span id="esStatus">
-        <span class="status-dot status-warn"></span>检测中...
-      </span>
-      <button class="btn btn-outline btn-sm" onclick="resetParams()">🔄 重置</button>
-      <button class="btn btn-success btn-sm" onclick="initIndex()">⚙️ 初始化索引</button>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn btn-outline btn-sm" onclick="resetSearch()">🔄 重置</button>
     </div>
   </div>
   <div class="card-body">
-    <!-- 主搜索框 -->
+    <!-- 图片上传区域 -->
+    <div class="image-upload-area" id="imageUploadArea">
+      <div class="upload-placeholder" id="uploadPlaceholder">
+        <div class="upload-icon">📤</div>
+        <div>
+          <p style="font-weight:600;color:var(--text-primary);">拖拽图片到此处</p>
+          <p style="font-size:0.875rem;color:var(--text-muted);">或点击选择文件（最大10MB）</p>
+        </div>
+      </div>
+      <img class="upload-preview" id="uploadPreview" alt="上传的图片">
+      <input type="file" id="fileInput" accept="image/*" style="display:none;">
+      <div class="upload-actions" id="uploadActions">
+        <button class="btn btn-outline btn-sm" onclick="clearUploadedImage()">🗑️ 清除</button>
+      </div>
+    </div>
+
+    <!-- 搜索框 -->
     <div class="search-bar">
-      <input type="text" class="search-input" id="query" placeholder="输入关键词，如：猫咪、风景、人物..." value="">
-      <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">搜索</button>
+      <input type="text" class="search-input" id="queryInput" placeholder="输入搜索关键词，如：猫咪、风景、人物...">
+      <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">🔍 搜索</button>
+    </div>
+
+    <!-- 混合搜索权重调节 -->
+    <div id="hybridWeightSection" class="form-group hidden" style="margin-bottom:1.5rem;">
+      <label>混合搜索权重调节</label>
+      <div class="slider-container">
+        <span style="font-size:0.875rem;color:var(--text-secondary);">文本</span>
+        <input type="range" id="hybridWeight" min="0" max="100" value="50" oninput="updateWeightDisplay()">
+        <span class="slider-value" id="weightDisplay">50%</span>
+        <span style="font-size:0.875rem;color:var(--text-secondary);">图像</span>
+      </div>
     </div>
 
     <!-- 基础参数 -->
     <div class="params-grid">
       <div class="form-group">
-        <label>页码</label>
-        <input type="number" id="page" value="1" min="1">
-      </div>
-      <div class="form-group">
         <label>每页数量</label>
-        <input type="number" id="size" value="20" min="1" max="100">
+        <input type="number" id="pageSize" value="20" min="1" max="100">
       </div>
       <div class="form-group">
         <label>排序方式</label>
-        <select id="sort">
+        <select id="sortOrder">
           <option value="relevance">相关度</option>
           <option value="popularity">热度</option>
           <option value="time">时间</option>
         </select>
-      </div>
-      <div class="form-group">
-        <label>高亮显示</label>
-        <div class="switch-wrap">
-          <label class="switch">
-            <input type="checkbox" id="highlight" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- 高级过滤条件 -->
-    <div class="collapsible" onclick="this.classList.toggle('collapsed')">
-      <span class="collapse-icon">▼</span>
-      <strong>🔧 高级过滤条件</strong>
-    </div>
-    <div>
-      <div class="filter-section">
-        <h4>📌 标签过滤</h4>
-        <div class="tag-inputs" id="tagInputs"></div>
-        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
-          <input type="text" id="newTag" placeholder="输入标签后按回车添加" style="flex:1;padding:0.625rem 0.875rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.875rem;" onkeydown="if(event.key==='Enter'){addTag()}">
-          <button class="btn btn-outline btn-sm" onclick="addTag()">添加</button>
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <h4>👤 作者过滤</h4>
-        <input type="text" id="filterAuthor" placeholder="输入作者名称" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.9375rem;">
-      </div>
-
-      <div class="filter-section">
-        <h4>📏 尺寸过滤 (宽 × 高)</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label>最小宽度</label><input type="number" id="widthMin" placeholder="不限">
-          </div>
-          <div class="form-group">
-            <label>最大宽度</label><input type="number" id="widthMax" placeholder="不限">
-          </div>
-          <div class="form-group">
-            <label>最小高度</label><input type="number" id="heightMin" placeholder="不限">
-          </div>
-          <div class="form-group">
-            <label>最大高度</label><input type="number" id="heightMax" placeholder="不限">
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <h4>📅 创建时间范围</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label>开始时间</label><input type="date" id="timeStart">
-          </div>
-          <div class="form-group">
-            <label>结束时间</label><input type="date" id="timeEnd">
-          </div>
-        </div>
-      </div>
-
-      <div class="filter-section">
-        <h4>⚖️ 搜索字段权重</h4>
-        <div id="fieldWeights" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
-        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
-          <select id="fieldSelect" style="flex:1;min-width:200px;padding:0.625rem 0.875rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.875rem;">
-            <option value="title">标题</option>
-            <option value="tags">标签</option>
-            <option value="description">描述</option>
-            <option value="author">作者</option>
-          </select>
-          <input type="number" id="fieldWeight" placeholder="权重" value="2" min="0.1" max="10" step="0.1" style="width:80px;padding:0.625rem 0.875rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.875rem;">
-          <button class="btn btn-outline btn-sm" onclick="addFieldWeight()">添加字段</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1183,485 +718,384 @@ input:checked + .slider::before {
 <!-- 操作按钮 -->
 <div class="action-buttons">
   <button class="btn btn-primary" onclick="doSearch()">🔍 执行搜索</button>
-  <button class="btn btn-outline" onclick="showTab('results')">📋 搜索结果</button>
-  <button class="btn btn-outline" onclick="showTab('json')">📄 JSON 响应</button>
-  <button class="btn btn-outline" onclick="showTab('upsert')">➕ 写入数据</button>
-  <button class="btn btn-outline" onclick="checkHealth()">💓 健康检查</button>
 </div>
 
-<!-- 结果卡片 -->
+<!-- 结果区域 -->
 <div class="card" id="resultCard" style="display:none;">
   <div class="card-header">
     <h3>📋 搜索结果</h3>
     <div class="result-stats" id="resultStats"></div>
   </div>
   <div class="card-body">
-    <!-- Tab 切换 -->
-    <div class="tabs">
-      <div class="tab active" onclick="switchResultTab('results', this)">卡片视图</div>
-      <div class="tab" onclick="switchResultTab('json', this)">JSON 视图</div>
-    </div>
-
-    <!-- 卡片结果 -->
-    <div id="resultsView">
+    <div id="resultsContainer">
       <div class="result-grid" id="resultGrid"></div>
-      <div class="pagination" id="pagination"></div>
-    </div>
-
-    <!-- JSON 结果 -->
-    <div id="jsonView" style="display:none;">
-      <pre class="json-panel" id="jsonOutput"></pre>
-    </div>
-  </div>
-</div>
-
-<!-- 写入数据面板 -->
-<div class="card" id="upsertCard" style="display:none;">
-  <div class="card-header">
-    <h3>➕ 写入测试数据</h3>
-  </div>
-  <div class="card-body">
-    <textarea id="upsertJson" rows="10" style="width:100%;padding:1rem;border:2px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:'Fira Code',monospace;resize:vertical;min-height:300px;" placeholder='输入 JSON 数据，例如:
-{
-  "id": "img_001",
-  "url": "https://example.com/cat.jpg",
-  "title": "可爱的猫咪",
-  "tags": ["猫咪", "宠物", "动物"],
-  "description": "一只在阳光下打盹的橘猫",
-  "author": "photographer_a",
-  "width": 1920,
-  "height": 1080
-}'></textarea>
-    <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-      <button class="btn btn-success" onclick="doUpsert()">写入数据</button>
-      <button class="btn btn-outline" onclick="fillSampleData()">🎲 随机示例</button>
     </div>
   </div>
 </div>
 
 </div>
-
-<!-- 图片预览模态框 -->
-<div class="modal-overlay" id="imageModal" style="display:none;">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeImageModal()">&times;</button>
-    <img id="modalImage" src="" alt="">
-    <div class="modal-info">
-      <h3 id="modalTitle"></h3>
-      <p id="modalDesc"></p>
-      <div class="modal-meta">
-        <span id="modalAuthor"></span>
-        <span id="modalSize"></span>
-        <span id="modalTags"></span>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 <!-- Toast 容器 -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
 const API_BASE = '';
-let filterTags = [];
-let searchFields = [];
+let currentMode = 'text';
+let uploadedImageData = null;
+let uploadedImageVector = null;
 
-// 初始化
+// 搜索模式配置
+const MODES = {
+  text: {
+    icon: '📝',
+    title: '文本搜索模式',
+    description: '使用关键词搜索图片，支持智能分词、同义词扩展和拼写纠错',
+    requiresText: true,
+    requiresImage: false
+  },
+  image: {
+    icon: '🖼️',
+    title: '图像搜索模式',
+    description: '上传图片进行以图搜图，基于视觉特征相似度搜索',
+    requiresText: false,
+    requiresImage: true
+  },
+  hybrid: {
+    icon: '🔀',
+    title: '混合搜索模式',
+    description: '结合文本和图像特征进行搜索，可调节权重获得最佳效果',
+    requiresText: false,
+    requiresImage: false
+  }
+};
+
+// 设置搜索模式
+function setSearchMode(mode) {
+  currentMode = mode;
+  
+  // 更新按钮状态
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  // 更新模式说明
+  const config = MODES[mode];
+  document.getElementById('modeInfoText').innerHTML = `
+    <div class="mode-info-icon">${config.icon}</div>
+    <div class="mode-info-content">
+      <h4>${config.title}</h4>
+      <p>${config.description}</p>
+    </div>
+  `;
+  
+  // 更新输入框状态
+  const queryInput = document.getElementById('queryInput');
+  const uploadArea = document.getElementById('imageUploadArea');
+  const weightSection = document.getElementById('hybridWeightSection');
+  
+  // 文本输入框
+  if (config.requiresText) {
+    queryInput.classList.remove('disabled');
+    queryInput.disabled = false;
+    queryInput.placeholder = '输入搜索关键词，如：猫咪、风景、人物...';
+  } else if (mode === 'hybrid') {
+    queryInput.classList.remove('disabled');
+    queryInput.disabled = false;
+    queryInput.placeholder = '输入搜索关键词（可选）';
+  } else {
+    queryInput.classList.add('disabled');
+    queryInput.disabled = true;
+    queryInput.value = '';
+    queryInput.placeholder = '图像搜索模式下不需要输入文本';
+  }
+  
+  // 图片上传区域
+  if (config.requiresImage) {
+    uploadArea.classList.add('active');
+  } else if (mode === 'hybrid') {
+    uploadArea.classList.add('active');
+  } else {
+    uploadArea.classList.remove('active');
+  }
+  
+  // 混合搜索权重
+  if (mode === 'hybrid') {
+    weightSection.classList.remove('hidden');
+  } else {
+    weightSection.classList.add('hidden');
+  }
+}
+
+// 图片上传处理
 document.addEventListener('DOMContentLoaded', () => {
-  checkHealth();
-  loadSearchStats();
-
-  // 回车搜索
-  document.getElementById('query').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doSearch();
+  const uploadArea = document.getElementById('imageUploadArea');
+  const fileInput = document.getElementById('fileInput');
+  
+  // 点击上传
+  uploadArea.addEventListener('click', () => fileInput.click());
+  
+  // 文件选择
+  fileInput.addEventListener('change', handleFileSelect);
+  
+  // 拖拽处理
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+  
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+  });
+  
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFile(files[0]);
+    }
   });
 });
 
-// ====== Toast ======
-function toast(msg, type='info') {
-  const el = document.createElement('div');
-  el.className = `toast toast-${type}`;
-  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => {
-    el.style.animation = 'slideIn 0.3s ease reverse';
-    setTimeout(() => el.remove(), 300);
-  }, 3000);
-}
-
-// ====== 健康检查 ======
-async function checkHealth() {
-  try {
-    const r = await fetch(`${API_BASE}/health`);
-    const d = await r.json();
-    const dot = d.es_cluster_status === 'green' ? 'status-ok' : (d.es_cluster_status === 'yellow' ? 'status-warn' : 'status-error');
-    const statusText = d.es_cluster_status === 'green' ? '正常' : d.es_cluster_status === 'yellow' ? '警告' : '异常';
-    document.getElementById('esStatus').innerHTML =
-      `<span class="status-dot ${dot}"></span>ES: ${statusText} (${d.es_number_of_nodes} 节点)`;
-  } catch(e) {
-    document.getElementById('esStatus').innerHTML = `<span class="status-dot status-error"></span>ES 未连接`;
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) {
+    handleFile(file);
   }
 }
 
-// ====== 加载统计信息 ======
-async function loadSearchStats() {
+async function handleFile(file) {
+  // 检查文件类型
+  if (!file.type.startsWith('image/')) {
+    toast('请选择图片文件', 'error');
+    return;
+  }
+  
+  // 检查文件大小
+  if (file.size > 10 * 1024 * 1024) {
+    toast('图片大小不能超过10MB', 'error');
+    return;
+  }
+  
   try {
-    const r = await fetch(`${API_BASE}/api/v1/stats`);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.data) {
-        document.getElementById('totalImages').textContent = d.data.total_images || '-';
-        document.getElementById('totalTags').textContent = d.data.total_tags || '-';
-        document.getElementById('avgScore').textContent = d.data.avg_score || '-';
-        document.getElementById('lastUpdate').textContent = d.data.last_update || '-';
-      }
+    // 上传图片并获取特征向量
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch(`${API_BASE}/api/v1/images/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    
+    if (result.code === 0) {
+      uploadedImageData = result.data.image_data_uri;
+      uploadedImageVector = result.data.vector;
+      
+      // 显示预览
+      const preview = document.getElementById('uploadPreview');
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const actions = document.getElementById('uploadActions');
+      
+      preview.src = uploadedImageData;
+      preview.classList.add('active');
+      placeholder.classList.add('hidden');
+      actions.classList.remove('hidden');
+      
+      document.getElementById('imageUploadArea').classList.add('uploaded');
+      
+      toast('图片上传成功', 'success');
+    } else {
+      toast('图片上传失败: ' + result.message, 'error');
     }
-  } catch(e) {
-    console.log('统计信息加载失败:', e);
+  } catch (error) {
+    toast('图片上传失败: ' + error.message, 'error');
   }
 }
 
-// ====== 初始化索引 ======
-async function initIndex() {
-  try {
-    const r = await fetch(`${API_BASE}/api/v1/init-index`, { method: 'POST' });
-    const d = await r.json();
-    toast(d.message || '索引初始化完成', d.code === 0 ? 'success' : 'error');
-    checkHealth();
-    loadSearchStats();
-  } catch(e) {
-    toast('初始化失败: ' + e.message, 'error');
-  }
+function clearUploadedImage() {
+  uploadedImageData = null;
+  uploadedImageVector = null;
+  
+  const preview = document.getElementById('uploadPreview');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const actions = document.getElementById('uploadActions');
+  
+  preview.src = '';
+  preview.classList.remove('active');
+  placeholder.classList.remove('hidden');
+  actions.classList.add('hidden');
+  
+  document.getElementById('imageUploadArea').classList.remove('uploaded');
+  document.getElementById('fileInput').value = '';
+  
+  toast('图片已清除', 'info');
 }
 
-// ====== 标签管理 ======
-function addTag() {
-  const input = document.getElementById('newTag');
-  const val = input.value.trim();
-  if (val && !filterTags.includes(val)) {
-    filterTags.push(val);
-    renderTags();
-    input.value = '';
-  }
+function updateWeightDisplay() {
+  const value = document.getElementById('hybridWeight').value;
+  document.getElementById('weightDisplay').textContent = value + '%';
 }
 
-function removeTag(tag) {
-  filterTags = filterTags.filter(t => t !== tag);
-  renderTags();
-}
-
-function renderTags() {
-  const container = document.getElementById('tagInputs');
-  container.innerHTML = filterTags.map(t =>
-    `<span class="tag-chip tag-chip-blue">${t} <span class="remove" onclick="removeTag('${t}')">×</span></span>`
-  ).join('');
-}
-
-// ====== 字段权重 ======
-function addFieldWeight() {
-  const field = document.getElementById('fieldSelect').value;
-  const weight = document.getElementById('fieldWeight').value;
-  const entry = `${field}^${weight}`;
-  if (!searchFields.find(s => s.startsWith(field + '^'))) {
-    searchFields.push(entry);
-    renderFieldWeights();
-  }
-}
-
-function removeFieldWeight(idx) {
-  searchFields.splice(idx, 1);
-  renderFieldWeights();
-}
-
-function renderFieldWeights() {
-  const container = document.getElementById('fieldWeights');
-  container.innerHTML = searchFields.map((f, i) =>
-    `<span class="tag-chip tag-chip-green">${f} <span class="remove" onclick="removeFieldWeight(${i})">×</span></span>`
-  ).join('');
-}
-
-// ====== 构建请求体 ======
-function buildRequest() {
-  const filters = {};
-  if (filterTags.length > 0) filters.tags = filterTags;
-  const author = document.getElementById('filterAuthor').value.trim();
-  if (author) filters.author = author;
-  const wm = document.getElementById('widthMin').value; if (wm) filters.width_min = parseInt(wm);
-  const wmx = document.getElementById('widthMax').value; if (wmx) filters.width_max = parseInt(wmx);
-  const hm = document.getElementById('heightMin').value; if (hm) filters.height_min = parseInt(hm);
-  const hmx = document.getElementById('heightMax').value; if (hmx) filters.height_max = parseInt(hmx);
-  const ts = document.getElementById('timeStart').value; if (ts) filters.create_time_start = ts;
-  const te = document.getElementById('timeEnd').value; if (te) filters.create_time_end = te;
-
-  return {
-    query: document.getElementById('query').value.trim(),
-    filters: Object.keys(filters).length > 0 ? filters : null,
-    page: parseInt(document.getElementById('page').value) || 1,
-    size: parseInt(document.getElementById('size').value) || 20,
-    sort: document.getElementById('sort').value,
-    highlight: document.getElementById('highlight').checked,
-    search_fields: searchFields.length > 0 ? searchFields : null
-  };
-}
-
-// ====== 搜索 ======
+// 执行搜索
 async function doSearch() {
-  const req = buildRequest();
-  if (!req.query) { toast('请输入搜索关键词', 'error'); return; }
-
+  const mode = MODES[currentMode];
+  
+  // 验证必填项
+  if (mode.requiresText && !document.getElementById('queryInput').value.trim()) {
+    toast('请输入搜索关键词', 'error');
+    return;
+  }
+  
+  if (mode.requiresImage && !uploadedImageVector) {
+    toast('请上传搜索图片', 'error');
+    return;
+  }
+  
   const btn = document.getElementById('searchBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="loading"></span> 搜索中...';
-
+  
   try {
     const startTime = performance.now();
-    const r = await fetch(`${API_BASE}/api/v1/images/search`, {
+    
+    const requestBody = {
+      mode: currentMode,
+      query: document.getElementById('queryInput').value.trim() || null,
+      query_image: uploadedImageData || null,
+      page: 1,
+      size: parseInt(document.getElementById('pageSize').value) || 20,
+      sort: document.getElementById('sortOrder').value,
+      highlight: currentMode !== 'image'
+    };
+    
+    // 添加混合搜索权重
+    if (currentMode === 'hybrid') {
+      requestBody.hybrid_weight = parseInt(document.getElementById('hybridWeight').value) / 100;
+    }
+    
+    const endpoint = currentMode === 'text' 
+      ? '/api/v1/images/search'
+      : '/api/v1/images/multimodal-search';
+    
+    const response = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req)
+      body: JSON.stringify(requestBody)
     });
-    const data = await r.json();
+    
+    const data = await response.json();
     const elapsed = (performance.now() - startTime).toFixed(0);
-
-    document.getElementById('resultCard').style.display = 'block';
-    document.getElementById('upsertCard').style.display = 'none';
-    showTab('results');
-
+    
     if (data.code !== 0) {
       toast(data.detail || '搜索失败', 'error');
       return;
     }
-
-    const d = data.data;
-    const total = d.total?.value || d.total || 0;
-    const hits = d.hits || [];
-
-    // 统计信息
-    let statsHtml = `共 <strong>${total}</strong> 条结果`;
-    if (d.latency_ms) statsHtml += ` · 耗时 ${d.latency_ms}ms`;
-    if (d.query_analysis) {
-      if (d.query_analysis.expanded && d.query_analysis.expanded !== req.query)
-        statsHtml += ` · 展开词: <em>${d.query_analysis.expanded}</em>`;
-      if (d.query_analysis.has_correction)
-        statsHtml += ` · 纠错: <em>${d.query_analysis.corrected}</em>`;
-    }
-    statsHtml += ` · 网络耗时 ~${elapsed}ms`;
-    document.getElementById('resultStats').innerHTML = statsHtml;
-
-    // 渲染结果
-    renderResults(hits);
-
-    // JSON 输出
-    document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
-
-    // 分页
-    renderPagination(total, req.page, req.size);
-
-    toast(`搜索完成，找到 ${total} 条结果`, 'success');
-  } catch(e) {
-    toast('请求失败: ' + e.message, 'error');
+    
+    const resultData = data.data;
+    const total = resultData.total || 0;
+    const hits = resultData.hits || [];
+    
+    // 显示结果
+    displayResults(hits, total, elapsed, data.query_info || data.search_mode);
+    
+  } catch (error) {
+    toast('搜索失败: ' + error.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '搜索';
+    btn.innerHTML = '🔍 搜索';
   }
 }
 
-function renderResults(hits) {
-  const grid = document.getElementById('resultGrid');
-  if (!hits.length) {
-    grid.innerHTML = `
+function displayResults(hits, total, elapsed, queryInfo) {
+  const resultCard = document.getElementById('resultCard');
+  const resultGrid = document.getElementById('resultGrid');
+  const resultStats = document.getElementById('resultStats');
+  
+  resultCard.style.display = 'block';
+  
+  // 统计信息
+  let statsHtml = `共 <strong>${total}</strong> 条结果`;
+  if (queryInfo) {
+    if (typeof queryInfo === 'string') {
+      statsHtml += ` · 模式: <strong>${queryInfo}</strong>`;
+    } else {
+      statsHtml += ` · 模式: <strong>${queryInfo.mode || queryInfo.search_mode}</strong>`;
+      if (queryInfo.hybrid_weight !== undefined) {
+        statsHtml += ` · 权重: <strong>${(queryInfo.hybrid_weight * 100).toFixed(0)}%</strong>`;
+      }
+    }
+  }
+  statsHtml += ` · 耗时 ~${elapsed}ms`;
+  resultStats.innerHTML = statsHtml;
+  
+  // 结果卡片
+  if (hits.length === 0) {
+    resultGrid.innerHTML = `
       <div class="empty-state" style="grid-column: 1 / -1;">
         <div class="icon">🔎</div>
         <h3>没有找到匹配的图片</h3>
-        <p>尝试使用不同的关键词或调整过滤条件</p>
+        <p>尝试不同的搜索词或上传不同的图片</p>
       </div>`;
     return;
   }
-
-  grid.innerHTML = hits.map(h => {
-    const s = h._source || h;
-    const title = highlightText(s.title || '无标题', h.highlight?.title);
-    const desc = highlightText(s.description || '', h.highlight?.description);
-    const tags = (s.tags || []).map(t => `<span class="result-tag">${t}</span>`).join('');
-    const score = h._score || 0;
-
+  
+  resultGrid.innerHTML = hits.map(hit => {
+    const url = hit.url || '';
+    const title = hit.title || '无标题';
+    const tags = (hit.tags || []).slice(0, 3).map(t => 
+      `<span style="background:#f0f0f0;color:#666;padding:2px 8px;border-radius:10px;font-size:0.75rem;">${t}</span>`
+    ).join('');
+    const score = hit.score || 0;
+    
     return `
-    <div class="result-card" onclick="showImageDetail('${s.id}')">
-      <div class="result-img">
-        ${s.url ? `<img src="${s.url}" alt="${s.title}" onerror="this.parentElement.innerHTML='🖼️'">` : '🖼️'}
-      </div>
-      <div class="result-info">
-        <div class="result-title">${title}</div>
-        <div class="result-desc">${desc}</div>
-        <div class="result-tags">${tags}</div>
-        <div class="result-meta">
-          <span>${s.author || '-'}</span>
-          <span>${s.width || '?'}×${s.height || '?'}</span>
-          <span class="result-score">★ ${score.toFixed(1)}</span>
+      <div class="result-card" onclick="showImageDetail('${hit.id}')">
+        <div class="result-img">
+          ${url ? `<img src="${url}" alt="${title}" onerror="this.parentElement.innerHTML='🖼️'">` : '🖼️'}
         </div>
-      </div>
-    </div>`;
+        <div class="result-info">
+          <div class="result-title">${title}</div>
+          <div style="margin-bottom:0.5rem;">${tags}</div>
+          <div class="result-meta">
+            <span>${hit.author || '-'}</span>
+            <span>相似度: ${score.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>`;
   }).join('');
+  
+  resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast(`搜索完成，找到 ${total} 条结果`, 'success');
 }
 
-function highlightText(text, highlights) {
-  if (!highlights || !highlights.length) return escapeHtml(text);
-  let result = escapeHtml(text);
-  highlights.forEach(h => {
-    const plain = h.replace(/<[^>]+>/g, '');
-    result = result.replace(new RegExp(escapeRegex(plain), 'gi'), `<mark class="highlight">${escapeHtml(plain)}</mark>`);
-  });
-  return result;
-}
-
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-function escapeRegex(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function renderPagination(total, page, size) {
-  const container = document.getElementById('pagination');
-  const totalPages = Math.ceil(total / size);
-  if (totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
-  let html = `<button ${page <= 1 ? 'disabled' : ''} onclick="goPage(${page-1})">◀ 上一页</button>`;
-
-  // 页码按钮
-  const startPage = Math.max(1, page - 2);
-  const endPage = Math.min(totalPages, page + 2);
-
-  if (startPage > 1) {
-    html += `<button onclick="goPage(1)">1</button>`;
-    if (startPage > 2) html += `<span>...</span>`;
-  }
-
-  for (let i = startPage; i <= endPage; i++) {
-    html += `<button ${i === page ? 'style="background:var(--primary);color:#fff;border-color:var(--primary);"' : ''} onclick="goPage(${i})">${i}</button>`;
-  }
-
-  if (endPage < totalPages) {
-    if (endPage < totalPages - 1) html += `<span>...</span>`;
-    html += `<button onclick="goPage(${totalPages})">${totalPages}</button>`;
-  }
-
-  html += `<span class="page-info">第 ${page} / ${totalPages} 页</span>`;
-  html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="goPage(${page+1})">下一页 ▶</button>`;
-  container.innerHTML = html;
-}
-
-function goPage(p) {
-  document.getElementById('page').value = p;
-  doSearch();
-  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ====== Tab 切换 ======
-function showTab(tab) {
-  document.getElementById('resultCard').style.display = tab === 'upsert' ? 'none' : 'block';
-  document.getElementById('upsertCard').style.display = tab === 'upsert' ? 'block' : 'none';
-}
-
-function switchResultTab(tab, el) {
-  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('resultsView').style.display = tab === 'results' ? 'block' : 'none';
-  document.getElementById('jsonView').style.display = tab === 'json' ? 'block' : 'none';
-}
-
-// ====== 写入数据 ======
-async function doUpsert() {
-  const raw = document.getElementById('upsertJson').value.trim();
-  try {
-    const data = JSON.parse(raw);
-    const r = await fetch(`${API_BASE}/api/v1/images/upsert`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const d = await r.json();
-    toast(d.message || '写入完成', d.code === 0 ? 'success' : 'error');
-    if (d.code === 0) loadSearchStats();
-  } catch(e) {
-    toast('JSON 解析错误: ' + e.message, 'error');
-  }
-}
-
-function fillSampleData() {
-  const samples = [
-    {
-      id: 'img_' + Date.now(),
-      url: 'https://picsum.photos/800/600?random=' + Math.random(),
-      title: '自然风光摄影作品',
-      tags: ['风景', '自然', '摄影', '户外'],
-      description: '在清晨的阳光下拍摄的自然景观，色彩斑斓，构图精美',
-      author: '摄影师' + Math.floor(Math.random() * 100),
-      width: 1920,
-      height: 1080,
-      popularity: 85 + Math.random() * 15
-    },
-    {
-      id: 'img_' + (Date.now() + 1),
-      url: 'https://picsum.photos/800/600?random=' + Math.random(),
-      title: '城市建筑夜景',
-      tags: ['城市', '建筑', '夜景', '灯光'],
-      description: '繁华都市夜晚的灯火，展现现代都市的魅力',
-      author: '摄影师' + Math.floor(Math.random() * 100),
-      width: 2560,
-      height: 1440,
-      popularity: 80 + Math.random() * 15
-    },
-    {
-      id: 'img_' + (Date.now() + 2),
-      url: 'https://picsum.photos/800/600?random=' + Math.random(),
-      title: '可爱的小动物',
-      tags: ['动物', '宠物', '可爱', '萌'],
-      description: '一张温馨的小动物照片，展现生命的可爱之处',
-      author: '摄影师' + Math.floor(Math.random() * 100),
-      width: 1280,
-      height: 853,
-      popularity: 90 + Math.random() * 10
-    }
-  ];
-  document.getElementById('upsertJson').value = JSON.stringify(samples[Math.floor(Math.random() * samples.length)], null, 2);
-}
-
-// ====== 图片详情 ======
 function showImageDetail(imageId) {
-  // 这里可以添加图片详情查看功能
   toast(`查看图片详情: ${imageId}`, 'info');
 }
 
-// ====== 重置 ======
-function resetParams() {
-  document.getElementById('query').value = '';
-  document.getElementById('page').value = 1;
-  document.getElementById('size').value = 20;
-  document.getElementById('sort').value = 'relevance';
-  document.getElementById('highlight').checked = true;
-  document.getElementById('filterAuthor').value = '';
-  document.getElementById('widthMin').value = '';
-  document.getElementById('widthMax').value = '';
-  document.getElementById('heightMin').value = '';
-  document.getElementById('heightMax').value = '';
-  document.getElementById('timeStart').value = '';
-  document.getElementById('timeEnd').value = '';
-  filterTags = [];
-  renderTags();
-  searchFields = [];
-  renderFieldWeights();
-  toast('参数已重置', 'info');
+function resetSearch() {
+  document.getElementById('queryInput').value = '';
+  document.getElementById('pageSize').value = 20;
+  document.getElementById('sortOrder').value = 'relevance';
+  document.getElementById('hybridWeight').value = 50;
+  updateWeightDisplay();
+  clearUploadedImage();
+  document.getElementById('resultCard').style.display = 'none';
+  setSearchMode('text');
+  toast('搜索参数已重置', 'info');
+}
+
+// Toast 提示
+function toast(message, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  el.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
 }
 </script>
-<script src="/static/add_modal.js"></script>
 </body>
 </html>
