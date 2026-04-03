@@ -2,6 +2,17 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
+class SearchFilters(BaseModel):
+    tags: Optional[List[str]] = None
+    author: Optional[str] = None
+    width_min: Optional[int] = None
+    width_max: Optional[int] = None
+    height_min: Optional[int] = None
+    height_max: Optional[int] = None
+    create_time_start: Optional[str] = None
+    create_time_end: Optional[str] = None
+
+
 class SearchRequest(BaseModel):
     query: str = Field(..., description="搜索关键词")
     filters: Optional[SearchFilters] = None
@@ -13,9 +24,6 @@ class SearchRequest(BaseModel):
         default=None,
         description="搜索字段及权重，如 ['title^3', 'tags^2']"
     )
-
-
-class SearchFilters(BaseModel):
     tags: Optional[List[str]] = None
     author: Optional[str] = None
     width_min: Optional[int] = None
