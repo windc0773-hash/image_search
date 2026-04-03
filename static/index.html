@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能图片搜索引擎</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; }
+.header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 20px 0; text-align: center; }
+.header h1 { font-size: 24px; font-weight: 600; }
+.header p { opacity: 0.7; font-size: 13px; margin-top: 4px; }
+.container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+.card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 16px; overflow: hidden; }
+.card-header { background: #fafbfc; padding: 14px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+.card-header h3 { font-size: 15px; color: #555; font-weight: 600; }
+.card-body { padding: 20px; }
+
+/* 搜索栏 */
+.search-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+.search-input { flex: 1; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; transition: border-color .3s; }
+.search-input:focus { border-color: #4361ee; }
+.btn { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
+.btn-primary { background: #4361ee; color: #fff; }
+.btn-primary:hover { background: #3a56d4; }
+.btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid #ddd; color: #666; }
+.btn-outline:hover { background: #f5f5f5; }
+.btn-danger { background: #e74c3c; color: #fff; }
+.btn-danger:hover { background: #c0392b; }
+.btn-success { background: #27ae60; color: #fff; }
+.btn-success:hover { background: #219a52; }
+
+/* 参数面板 */
+.params-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 12px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+.form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; transition: border-color .2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #4361ee; }
+.form-row { display: flex; gap: 10px; align-items: flex-end; }
+.form-row .form-group { flex: 1; }
+
+/* 过滤器 */
+.filter-section { border: 1px solid #eee; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.filter-section h4 { font-size: 13px; color: #666; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0; }
+
+/* 开关 */
+.switch-wrap { display: flex; align-items: center; gap: 8px; }
+.switch { position: relative; width: 42px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 22px; transition: .3s; }
+.slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: .3s; }
+input:checked + .slider { background: #4361ee; }
+input:checked + .slider:before { transform: translateX(20px); }
+
+/* 标签输入 */
+.tag-inputs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-chip { background: #eef2ff; color: #4361ee; padding: 4px 10px; border-radius: 15px; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+.tag-chip .remove { cursor: pointer; color: #999; font-weight: bold; }
+.tag-chip .remove:hover { color: #e74c3c; }
+
+/* 结果区 */
+.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.result-stats { font-size: 13px; color: #888; }
+.result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.result-card { border: 1px solid #eee; border-radius: 10px; overflow: hidden; transition: transform .2s, box-shadow .2s; background: #fff; }
+.result-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.result-img { width: 100%; height: 180px; object-fit: cover; background: linear-gradient(135deg, #e0e0e0, #f5f5f5); display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 48px; }
+.result-info { padding: 12px; }
+.result-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.result-desc { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.result-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.result-tag { background: #f0f0f0; color: #666; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.result-meta { display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-top: 8px; }
+.highlight { background: #fff3cd; color: #856404; padding: 0 2px; border-radius: 2px; }
+
+/* 分页 */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; }
+.pagination button { padding: 7px 14px; border: 1px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; }
+.pagination button:disabled { opacity: .4; cursor: not-allowed; }
+.pagination .page-info { font-size: 13px; color: #666; }
+
+/* JSON 面板 */
+.json-panel { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+.json-key { color: #9cdcfe; }
+.json-str { color: #ce9178; }
+.json-num { color: #b5cea8; }
+.json-bool { color: #569cd6; }
+
+/* 状态指示 */
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-ok { background: #27ae60; }
+.status-error { background: #e74c3c; }
+.status-warn { background: #f39c12; }
+
+/* Tab */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid #eee; margin-bottom: 16px; }
+.tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; }
+.tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+.tab:hover { color: #4361ee; }
+
+/* 折叠 */
+.collapsible { cursor: pointer; user-select: none; }
+.collapse-icon { transition: transform .2s; display: inline-block; margin-right: 4px; }
+.collapsible.collapsed .collapse-icon { transform: rotate(-90deg); }
+.collapsible.collapsed + * { display: none; }
+
+/* 加载动画 */
+.loading { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 空状态 */
+.empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+.empty-state .icon { font-size: 56px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* Toast */
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+.toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 13px; margin-bottom: 8px; animation: slideIn .3s ease; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.toast-success { background: #27ae60; }
+.toast-error { background: #e74c3c; }
+.toast-info { background: #4361ee; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .params-grid { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
+  .search-bar { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔍 智能图片搜索引擎</h1>
+  <p>基于 Elasticsearch · 支持中文分词 / 同义词扩展 / 智能纠错</p>
+</div>
+
+<div class="container">
+
+<!-- 搜索参数 -->
+<div class="card">
+  <div class="card-header">
+    <h3>📝 搜索参数</h3>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="esStatus"><span class="status-dot status-warn"></span>检测中...</span>
+      <button class="btn btn-outline" onclick="resetParams()" style="padding:6px 12px;font-size:12px;">重置</button>
+      <button class="btn btn-success" onclick="initIndex()" style="padding:6px 12px;font-size:12px;">初始化索引</button>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- 主搜索 -->
+    <div class="search-bar">
+      <input type="text" class="search-input" id="query" placeholder="输入搜索关键词，如：猫咪、风景、人物..." value="">
+      <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">搜索</button>
+    </div>
+
+    <!-- 基础参数 -->
+    <div class="params-grid" style="margin-bottom:16px;">
+      <div class="form-group">
+        <label>页码 (page)</label>
+        <input type="number" id="page" value="1" min="1">
+      </div>
+      <div class="form-group">
+        <label>每页数量 (size)</label>
+        <input type="number" id="size" value="20" min="1" max="100">
+      </div>
+      <div class="form-group">
+        <label>排序方式 (sort)</label>
+        <select id="sort">
+          <option value="relevance">相关度 relevance</option>
+          <option value="popularity">热度 popularity</option>
+          <option value="time">时间 time</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>高亮显示</label>
+        <div class="switch-wrap">
+          <label class="switch"><input type="checkbox" id="highlight" checked><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 过滤条件（可折叠） -->
+    <div class="collapsible" onclick="this.classList.toggle('collapsed')">
+      <span class="collapse-icon">▼</span>
+      <strong style="font-size:14px;color:#4361ee;">🔧 高级过滤条件</strong>
+    </div>
+    <div>
+      <div class="filter-section">
+        <h4>标签过滤 (tags)</h4>
+        <div class="tag-inputs" id="tagInputs"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <input type="text" id="newTag" placeholder="输入标签后回车添加" style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;" onkeydown="if(event.key==='Enter'){addTag()}">
+          <button class="btn btn-outline" onclick="addTag()" style="padding:6px 12px;font-size:12px;">添加</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>作者过滤 (author)</h4>
+        <input type="text" id="filterAuthor" placeholder="作者名称" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;">
+      </div>
+
+      <div class="filter-section">
+        <h4>尺寸过滤 (宽 × 高)</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>最小宽度</label><input type="number" id="widthMin" placeholder="不限">
+          </div>
+          <div class="form-group">
+            <label>最大宽度</label><input type="number" id="widthMax" placeholder="不限">
+          </div>
+          <div class="form-group">
+            <label>最小高度</label><input type="number" id="heightMin" placeholder="不限">
+          </div>
+          <div class="form-group">
+            <label>最大高度</label><input type="number" id="heightMax" placeholder="不限">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>创建时间范围</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>开始时间</label><input type="text" id="timeStart" placeholder="2024-01-01 或 ISO 格式">
+          </div>
+          <div class="form-group">
+            <label>结束时间</label><input type="text" id="timeEnd" placeholder="2024-12-31 或 ISO 格式">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>搜索字段权重 (search_fields)</h4>
+        <div id="fieldWeights" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <select id="fieldSelect" style="flex:1;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;">
+            <option value="title^3">title^3</option>
+            <option value="title^5">title^5</option>
+            <option value="tags^2">tags^2</option>
+            <option value="description">description</option>
+            <option value="author">author</option>
+          </select>
+          <input type="number" id="fieldWeight" placeholder="权重" value="2" min="1" max="10" style="width:70px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;">
+          <button class="btn btn-outline" onclick="addFieldWeight()" style="padding:6px 12px;font-size:12px;">添加字段</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 操作按钮行 -->
+<div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+  <button class="btn btn-primary" onclick="doSearch()">🔍 执行搜索</button>
+  <button class="btn btn-outline" onclick="showTab('results')">📋 搜索结果</button>
+  <button class="btn btn-outline" onclick="showTab('json')">📄 JSON 响应</button>
+  <button class="btn btn-outline" onclick="showTab('upsert')">➕ 写入测试数据</button>
+  <button class="btn btn-outline" onclick="checkHealth()">💓 健康检查</button>
+</div>
+
+<!-- 结果区域 -->
+<div class="card" id="resultCard" style="display:none;">
+  <div class="card-header">
+    <h3 id="resultTitle">📋 搜索结果</h3>
+    <div class="result-stats" id="resultStats"></div>
+  </div>
+  <div class="card-body">
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchResultTab('results', this)">卡片视图</div>
+      <div class="tab" onclick="switchResultTab('json', this)">JSON 视图</div>
+    </div>
+
+    <!-- 卡片结果 -->
+    <div id="resultsView">
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- JSON 结果 -->
+    <div id="jsonView" style="display:none;">
+      <pre class="json-panel" id="jsonOutput"></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 写入数据面板 -->
+<div class="card" id="upsertCard" style="display:none;">
+  <div class="card-header">
+    <h3>➕ 写入测试数据</h3>
+  </div>
+  <div class="card-body">
+    <textarea id="upsertJson" rows="10" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:12px;font-family:monospace;resize:vertical;" placeholder='输入 JSON 数据，例如:
+{
+  "id": "img_001",
+  "url": "https://example.com/cat.jpg",
+  "title": "可爱的猫咪",
+  "tags": ["猫咪", "宠物", "动物"],
+  "description": "一只在阳光下打盹的橘猫",
+  "author": "photographer_a",
+  "width": 1920,
+  "height": 1080
+}'></textarea>
+    <div style="margin-top:12px;display:flex;gap:10px;">
+      <button class="btn btn-success" onclick="doUpsert()">写入数据</button>
+      <button class="btn btn-outline" onclick="fillSampleData()">填充示例数据</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Toast 容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API_BASE = '';
+let filterTags = [];
+let searchFields = [];
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  checkHealth();
+  // 回车搜索
+  document.getElementById('query').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+});
+
+// ====== Toast ======
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ====== 健康检查 ======
+async function checkHealth() {
+  try {
+    const r = await fetch(`${API_BASE}/health`);
+    const d = await r.json();
+    const dot = d.es_cluster_status === 'green' ? 'status-ok' : (d.es_cluster_status === 'yellow' ? 'status-warn' : 'status-error');
+    document.getElementById('esStatus').innerHTML = `<span class="status-dot ${dot}"></span>ES: ${d.es_cluster_status} (${d.es_number_of_nodes} 节点)`;
+  } catch(e) {
+    document.getElementById('esStatus').innerHTML = `<span class="status-dot status-error"></span>ES 未连接`;
+  }
+}
+
+// ====== 初始化索引 ======
+async function initIndex() {
+  try {
+    const r = await fetch(`${API_BASE}/api/v1/init-index`, { method: 'POST' });
+    const d = await r.json();
+    toast(d.message || '索引初始化完成', d.code === 0 ? 'success' : 'error');
+    checkHealth();
+  } catch(e) {
+    toast('初始化失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 标签管理 ======
+function addTag() {
+  const input = document.getElementById('newTag');
+  const val = input.value.trim();
+  if (val && !filterTags.includes(val)) {
+    filterTags.push(val);
+    renderTags();
+    input.value = '';
+  }
+}
+function removeTag(tag) {
+  filterTags = filterTags.filter(t => t !== tag);
+  renderTags();
+}
+function renderTags() {
+  const container = document.getElementById('tagInputs');
+  container.innerHTML = filterTags.map(t => `<span class="tag-chip">${t} <span class="remove" onclick="removeTag('${t}')">×</span></span>`).join('');
+}
+
+// ====== 字段权重 ======
+function addFieldWeight() {
+  const field = document.getElementById('fieldSelect').value.split('^')[0];
+  const weight = document.getElementById('fieldWeight').value;
+  const entry = `${field}^${weight}`;
+  if (!searchFields.find(s => s.startsWith(field + '^'))) {
+    searchFields.push(entry);
+    renderFieldWeights();
+  }
+}
+function removeFieldWeight(idx) {
+  searchFields.splice(idx, 1);
+  renderFieldWeights();
+}
+function renderFieldWeights() {
+  const container = document.getElementById('fieldWeights');
+  container.innerHTML = searchFields.map((f, i) =>
+    `<span class="tag-chip" style="background:#e8f5e9;color:#27ae60;">${f} <span class="remove" onclick="removeFieldWeight(${i})">×</span></span>`
+  ).join('');
+}
+
+// ====== 构建请求体 ======
+function buildRequest() {
+  const filters = {};
+  if (filterTags.length > 0) filters.tags = filterTags;
+  const author = document.getElementById('filterAuthor').value.trim();
+  if (author) filters.author = author;
+  const wm = document.getElementById('widthMin').value; if (wm) filters.width_min = parseInt(wm);
+  const wmx = document.getElementById('widthMax').value; if (wmx) filters.width_max = parseInt(wmx);
+  const hm = document.getElementById('heightMin').value; if (hm) filters.height_min = parseInt(hm);
+  const hmx = document.getElementById('heightMax').value; if (hmx) filters.height_max = parseInt(hmx);
+  const ts = document.getElementById('timeStart').value.trim(); if (ts) filters.create_time_start = ts;
+  const te = document.getElementById('timeEnd').value.trim(); if (te) filters.create_time_end = te;
+
+  return {
+    query: document.getElementById('query').value.trim(),
+    filters: Object.keys(filters).length > 0 ? filters : null,
+    page: parseInt(document.getElementById('page').value) || 1,
+    size: parseInt(document.getElementById('size').value) || 20,
+    sort: document.getElementById('sort').value,
+    highlight: document.getElementById('highlight').checked,
+    search_fields: searchFields.length > 0 ? searchFields : null
+  };
+}
+
+// ====== 搜索 ======
+async function doSearch() {
+  const req = buildRequest();
+  if (!req.query) { toast('请输入搜索关键词', 'error'); return; }
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="loading"></span> 搜索中...';
+
+  try {
+    const startTime = performance.now();
+    const r = await fetch(`${API_BASE}/api/v1/images/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req)
+    });
+    const data = await r.json();
+    const elapsed = (performance.now() - startTime).toFixed(0);
+
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('upsertCard').style.display = 'none';
+    showTab('results');
+
+    if (data.code !== 0) {
+      toast(data.detail || '搜索失败', 'error');
+      return;
+    }
+
+    const d = data.data;
+    const total = d.total?.value || d.total || 0;
+    const hits = d.hits || [];
+
+    // 统计信息
+    let statsHtml = `共 <strong>${total}</strong> 条结果`;
+    if (d.latency_ms) statsHtml += ` · 耗时 ${d.latency_ms}ms`;
+    if (d.query_analysis) {
+      if (d.query_analysis.expanded && d.query_analysis.expanded !== req.query)
+        statsHtml += ` · 展开词: <em>${d.query_analysis.expanded}</em>`;
+      if (d.query_analysis.has_correction)
+        statsHtml += ` · 纠错: <em>${d.query_analysis.corrected}</em>`;
+    }
+    statsHtml += ` · 网络耗时 ~${elapsed}ms`;
+    document.getElementById('resultStats').innerHTML = statsHtml;
+
+    // 渲染卡片
+    renderResults(hits);
+
+    // JSON 输出
+    document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
+
+    // 分页
+    renderPagination(total, req.page, req.size);
+
+    toast(`搜索完成，找到 ${total} 条结果`, 'success');
+  } catch(e) {
+    toast('请求失败: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '搜索';
+  }
+}
+
+function renderResults(hits) {
+  const grid = document.getElementById('resultGrid');
+  if (!hits.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="icon">🔎</div><p>没有找到匹配的图片</p></div>`;
+    return;
+  }
+  grid.innerHTML = hits.map(h => {
+    const s = h._source || h;
+    const title = highlightText(s.title || '无标题', h.highlight?.title);
+    const desc = highlightText(s.description || '', h.highlight?.description);
+    const tags = (s.tags || []).map(t => `<span class="result-tag">${t}</span>`).join('');
+    return `
+    <div class="result-card">
+      <div class="result-img">🖼️</div>
+      <div class="result-info">
+        <div class="result-title">${title}</div>
+        <div class="result-desc">${desc}</div>
+        <div class="result-tags">${tags}</div>
+        <div class="result-meta">
+          <span>${s.author || '-'}</span>
+          <span>${s.width || '?'}×${s.height || '?'}</span>
+          <span>评分: ${h._score?.toFixed(1) || '-'}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function highlightText(text, highlights) {
+  if (!highlights || !highlights.length) return escapeHtml(text);
+  let result = escapeHtml(text);
+  highlights.forEach(h => {
+    const plain = h.replace(/<[^>]+>/g, '');
+    result = result.replace(new RegExp(escapeRegex(plain), 'g'), `<mark class="highlight">${escapeHtml(plain)}</mark>`);
+  });
+  return result;
+}
+
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function renderPagination(total, page, size) {
+  const container = document.getElementById('pagination');
+  const totalPages = Math.ceil(total / size);
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+  let html = `<button ${page <= 1 ? 'disabled' : ''} onclick="goPage(${page-1})">上一页</button>`;
+  html += `<span class="page-info">第 ${page} / ${totalPages} 页</span>`;
+  html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="goPage(${page+1})">下一页</button>`;
+  container.innerHTML = html;
+}
+
+function goPage(p) {
+  document.getElementById('page').value = p;
+  doSearch();
+}
+
+// ====== Tab 切换 ======
+function showTab(tab) {
+  document.getElementById('resultCard').style.display = tab === 'upsert' ? 'none' : 'block';
+  document.getElementById('upsertCard').style.display = tab === 'upsert' ? 'block' : 'none';
+}
+
+function switchResultTab(tab, el) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('resultsView').style.display = tab === 'results' ? 'block' : 'none';
+  document.getElementById('jsonView').style.display = tab === 'json' ? 'block' : 'none';
+}
+
+// ====== 写入数据 ======
+async function doUpsert() {
+  const raw = document.getElementById('upsertJson').value.trim();
+  try {
+    const data = JSON.parse(raw);
+    const r = await fetch(`${API_BASE}/api/v1/images/upsert`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const d = await r.json();
+    toast(d.message || '写入完成', d.code === 0 ? 'success' : 'error');
+  } catch(e) {
+    toast('JSON 解析错误: ' + e.message, 'error');
+  }
+}
+
+function fillSampleData() {
+  const samples = [
+    { id: 'img_001', url: 'https://picsum.photos/400/300?random=1', title: '夕阳下的海岸线', tags: ['风景', '自然', '海'], description: '金色夕阳洒在平静的海面上，远处的山峦若隐若现', author: '张三', width: 1920, height: 1080, popularity: 95.5 },
+    { id: 'img_002', url: 'https://picsum.photos/400/300?random=2', title: '城市夜景霓虹灯', tags: ['城市', '夜景', '灯光'], description: '繁华都市的夜晚，霓虹灯闪烁映照着高楼大厦', author: '李四', width: 2560, height: 1440, popularity: 88.2 },
+    { id: 'img_003', url: 'https://picsum.photos/400/300?random=3', title: '慵懒的橘猫午睡', tags: ['猫咪', '宠物', '动物'], description: '一只胖乎乎的橘猫趴在窗台上晒太阳睡觉', author: '王五', width: 1280, height: 853, popularity: 99.1 },
+    { id: 'img_004', url: 'https://picsum.photos/400/300?random=4', title: '雪山日出', tags: ['风景', '雪山', '日出'], description: '清晨的第一缕阳光照在雪山顶上，壮丽无比', author: '赵六', width: 3840, height: 2160, popularity: 92.7 },
+    { id: 'img_005', url: 'https://picsum.photos/400/300?random=5', title: '咖啡拉花艺术', tags: ['美食', '咖啡', '生活'], description: '精心制作的拿铁咖啡，奶泡上绘有精美的叶子图案', author: '孙七', width: 1080, height: 1080, popularity: 76.3 },
+  ];
+  document.getElementById('upsertJson').value = JSON.stringify(samples[Math.floor(Math.random() * samples.length)], null, 2);
+}
+
+// ====== 重置 ======
+function resetParams() {
+  document.getElementById('query').value = '';
+  document.getElementById('page').value = 1;
+  document.getElementById('size').value = 20;
+  document.getElementById('sort').value = 'relevance';
+  document.getElementById('highlight').checked = true;
+  document.getElementById('filterAuthor').value = '';
+  document.getElementById('widthMin').value = '';
+  document.getElementById('widthMax').value = '';
+  document.getElementById('heightMin').value = '';
+  document.getElementById('heightMax').value = '';
+  document.getElementById('timeStart').value = '';
+  document.getElementById('timeEnd').value = '';
+  filterTags = []; renderTags();
+  searchFields = []; renderFieldWeights();
+  toast('参数已重置', 'info');
+}
+</script>
+</body>
+</html>
